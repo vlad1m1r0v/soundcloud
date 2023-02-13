@@ -21,10 +21,6 @@ export class CreateUserDto {
   email: string;
 
   @IsOptional()
-  @IsUrl()
-  avatar?: string;
-
-  @IsOptional()
   @IsDate()
   birthDate?: string;
 
