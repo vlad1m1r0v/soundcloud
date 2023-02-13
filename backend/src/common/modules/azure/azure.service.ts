@@ -1,8 +1,16 @@
 import { randomUUID as uuid } from 'crypto';
 import { extname } from 'path';
-import { Injectable } from '@nestjs/common';
-import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BlobServiceClient,
+  BlockBlobClient,
+  ContainerClient,
+} from '@azure/storage-blob';
 import { ConfigService } from '@nestjs/config';
+import { Readable } from 'stream';
+
+const HALF_MEGABYTE = 512 * 1024;
+const uploadOptions = { bufferSize: HALF_MEGABYTE, maxBuffers: 20 };
 
 @Injectable()
 export class AzureBlobService {
@@ -12,11 +20,16 @@ export class AzureBlobService {
     this.azureConnection = this.config.get<string>('AZURE_CONNECTION_STRING');
   }
 
-  getBlobClient(imageName: string, containerName: string): BlockBlobClient {
+  getContainerClient(containerName): ContainerClient {
     const blobClientService = BlobServiceClient.fromConnectionString(
       this.azureConnection,
     );
     const containerClient = blobClientService.getContainerClient(containerName);
+    return containerClient;
+  }
+
+  getBlobClient(imageName: string, containerName: string): BlockBlobClient {
+    const containerClient = this.getContainerClient(containerName);
     const blobClient = containerClient.getBlockBlobClient(imageName);
     return blobClient;
   }
@@ -29,5 +42,26 @@ export class AzureBlobService {
     const blobClient = this.getBlobClient(imgUrl, containerName);
     await blobClient.uploadData(file.buffer);
     return blobClient.url;
+  }
+
+  async uploadStream(containerName: string, stream: Readable) {
+    const blobClient = this.getBlobClient(uuid() + '.jpg', containerName);
+    try {
+      await blobClient.uploadStream(
+        stream,
+        uploadOptions.bufferSize,
+        uploadOptions.maxBuffers,
+        { blobHTTPHeaders: { blobContentType: 'image/jpeg' } },
+      );
+      return blobClient.url;
+    } catch {
+      throw new InternalServerErrorException('Internal server error occured');
+    }
+  }
+
+  async delete(url: string, containerName: string) {
+    const blobName = url.substring(url.lastIndexOf('/') + 1, url.length);
+    const blobClient = this.getBlobClient(blobName, containerName);
+    await blobClient.deleteIfExists();
   }
 }

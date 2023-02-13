@@ -4,7 +4,6 @@ import {
   IsEmail,
   IsDate,
   IsOptional,
-  IsUrl,
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -30,8 +29,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   description?: string;
-
-  @IsUrl()
-  @IsOptional()
-  avatar?: string;
 }
