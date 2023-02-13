@@ -21,10 +21,13 @@ export class AzureBlobService {
     return blobClient;
   }
 
-  async upload(file: Express.Multer.File, containerName: string) {
+  async upload(
+    file: Express.Multer.File,
+    containerName: string,
+  ): Promise<string> {
     const imgUrl = uuid() + extname(file.originalname);
     const blobClient = this.getBlobClient(imgUrl, containerName);
-    const result = await blobClient.uploadData(file.buffer);
+    await blobClient.uploadData(file.buffer);
     return blobClient.url;
   }
 }

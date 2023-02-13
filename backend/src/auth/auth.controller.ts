@@ -24,20 +24,20 @@ export class AuthController {
   @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto: CreateUserDto): Promise<Tokens> {
+  signupLocal(@Body() dto: CreateUserDto) {
     return this.authService.signupLocal(dto);
   }
 
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  signinLocal(@Body() dto: SignInDto): Promise<Tokens> {
+  signinLocal(@Body() dto: SignInDto) {
     return this.authService.signinLocal(dto);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: string): Promise<boolean> {
+  logout(@GetCurrentUserId() userId: string) {
     return this.authService.logout(userId);
   }
 
@@ -48,7 +48,7 @@ export class AuthController {
   refreshTokens(
     @GetCurrentUserId() userId: string,
     @GetCurrentUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
+  ) {
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }

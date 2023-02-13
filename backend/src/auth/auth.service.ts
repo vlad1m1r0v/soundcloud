@@ -22,7 +22,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signupLocal(dto: CreateUserDto): Promise<Tokens> {
+  async signupLocal(dto: CreateUserDto) {
     const candidate = await this.usersRepository.findOne({
       where: { email: dto.email },
     });
@@ -35,13 +35,14 @@ export class AuthService {
       this.usersRepository.save(user);
       const tokens = await this.getTokens(user.id, user.email);
       await this.updateRtHash(user.id, tokens.refresh_token);
-      return tokens;
+      const { password, hashedRT, ...rest } = user;
+      return { ...tokens, user: rest };
     } catch (error) {
       throw new ForbiddenException('Credentials incorrect');
     }
   }
 
-  async signinLocal(dto: SignInDto): Promise<Tokens> {
+  async signinLocal(dto: SignInDto) {
     const user = await this.usersRepository.findOne({
       where: {
         email: dto.email,
@@ -56,10 +57,11 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    const { password, hashedRT, ...rest } = user;
+    return { ...tokens, user: rest };
   }
 
-  async logout(userId: string): Promise<boolean> {
+  async logout(userId: string) {
     await this.usersRepository.update(
       {
         id: userId,
@@ -69,7 +71,6 @@ export class AuthService {
         hashedRT: null,
       },
     );
-    return true;
   }
 
   async refreshTokens(userId: string, rt: string): Promise<Tokens> {
