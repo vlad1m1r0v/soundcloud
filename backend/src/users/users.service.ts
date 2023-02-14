@@ -6,6 +6,7 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 import { Users } from './users.entity';
 import * as sharp from 'sharp';
 import { Readable } from 'stream';
+import { extname } from 'path';
 
 @Injectable()
 export class UsersService {
@@ -38,10 +39,13 @@ export class UsersService {
       await this.azureBlobService.delete(profile.avatar, this.containerName);
     const fileBuffer = await sharp(file.buffer).resize(300, 300).toBuffer();
     const stream = Readable.from(fileBuffer);
-    const updatedAvatar = await this.azureBlobService.uploadStream(
-      this.containerName,
+    const updatedAvatar = await this.azureBlobService.uploadStream({
+      fileExtension: extname(file.originalname),
+      mimeType: file.mimetype,
+      containerName: this.containerName,
       stream,
-    );
+    });
+    console.log({ updatedAvatar, userId });
     await this.usersRepository.update(
       { id: userId },
       { avatar: updatedAvatar },

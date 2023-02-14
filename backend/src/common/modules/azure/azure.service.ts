@@ -12,6 +12,13 @@ import { Readable } from 'stream';
 const HALF_MEGABYTE = 512 * 1024;
 const uploadOptions = { bufferSize: HALF_MEGABYTE, maxBuffers: 20 };
 
+interface UploadStreamProps {
+  mimeType: string;
+  fileExtension: string;
+  stream: Readable;
+  containerName: string;
+}
+
 @Injectable()
 export class AzureBlobService {
   readonly azureConnection: string;
@@ -38,20 +45,28 @@ export class AzureBlobService {
     file: Express.Multer.File,
     containerName: string,
   ): Promise<string> {
-    const imgUrl = uuid() + extname(file.originalname);
-    const blobClient = this.getBlobClient(imgUrl, containerName);
+    const fileName = uuid() + extname(file.originalname);
+    const blobClient = this.getBlobClient(fileName, containerName);
     await blobClient.uploadData(file.buffer);
     return blobClient.url;
   }
 
-  async uploadStream(containerName: string, stream: Readable) {
-    const blobClient = this.getBlobClient(uuid() + '.jpg', containerName);
+  async uploadStream({
+    mimeType,
+    fileExtension,
+    containerName,
+    stream,
+  }: UploadStreamProps) {
+    const blobClient = this.getBlobClient(
+      uuid() + fileExtension,
+      containerName,
+    );
     try {
       await blobClient.uploadStream(
         stream,
         uploadOptions.bufferSize,
         uploadOptions.maxBuffers,
-        { blobHTTPHeaders: { blobContentType: 'image/jpeg' } },
+        { blobHTTPHeaders: { blobContentType: mimeType } },
       );
       return blobClient.url;
     } catch {
