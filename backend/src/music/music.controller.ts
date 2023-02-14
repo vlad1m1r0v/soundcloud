@@ -1,13 +1,12 @@
 import {
-  Body,
   Controller,
+  Headers,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetCurrentUserId } from 'src/common/decorators';
-import { UploadMusicDto } from './dtos/upload-music.dto';
 import { MusicService } from './music.service';
 
 @Controller('music')
@@ -17,11 +16,11 @@ export class MusicController {
   @Post()
   @UseInterceptors(FileInterceptor('music'))
   async upload(
+    @Headers('x-music-name') name: string,
+    @Headers('x-music-artist') artist: string,
     @GetCurrentUserId() userId: string,
     @UploadedFile() music: Express.Multer.File,
-    @Body() body: { [prop: string]: any; data: string },
   ) {
-    const dto = JSON.parse(body.data) as UploadMusicDto;
-    return this.musicService.upload({ userId, music, dto });
+    return this.musicService.upload({ userId, music, dto: { name, artist } });
   }
 }

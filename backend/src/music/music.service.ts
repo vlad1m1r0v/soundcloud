@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AzureBlobService } from 'src/common/modules/azure/azure.service';
 import { Repository } from 'typeorm';
@@ -23,9 +23,13 @@ export class MusicService {
   ) {}
 
   async upload({ userId, dto, music }: UploadMusicProps) {
-    const url = await this.azureBlobService.upload(music, this.containerName);
-    const entity = this.musicRepository.create({ userId, url, ...dto });
-    const uploadedMusic = this.musicRepository.save(entity);
-    return uploadedMusic;
+    try {
+      const url = await this.azureBlobService.upload(music, this.containerName);
+      const entity = this.musicRepository.create({ userId, url, ...dto });
+      const uploadedMusic = this.musicRepository.save(entity);
+      return uploadedMusic;
+    } catch {
+      throw new BadRequestException('Invalid credentials');
+    }
   }
 }

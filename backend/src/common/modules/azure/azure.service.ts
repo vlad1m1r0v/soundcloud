@@ -45,7 +45,6 @@ export class AzureBlobService {
     file: Express.Multer.File,
     containerName: string,
   ): Promise<string> {
-    console.log(file);
     const fileName = uuid() + extname(file.originalname);
     const blobClient = this.getBlobClient(fileName, containerName);
     await blobClient.uploadData(file.buffer);
