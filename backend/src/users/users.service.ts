@@ -45,7 +45,6 @@ export class UsersService {
       containerName: this.containerName,
       stream,
     });
-    console.log({ updatedAvatar, userId });
     await this.usersRepository.update(
       { id: userId },
       { avatar: updatedAvatar },

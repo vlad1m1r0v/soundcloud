@@ -31,8 +31,8 @@ export class AuthService {
     }
     try {
       const hash = await argon.hash(dto.password);
-      const user = this.usersRepository.create({ ...dto, password: hash });
-      this.usersRepository.save(user);
+      const entity = this.usersRepository.create({ ...dto, password: hash });
+      const user = await this.usersRepository.save(entity);
       const tokens = await this.getTokens(user.id, user.email);
       await this.updateRtHash(user.id, tokens.refresh_token);
       const { password, hashedRT, ...rest } = user;
