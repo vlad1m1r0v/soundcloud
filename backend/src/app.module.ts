@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
+import { MusicModule } from './music/music.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs/`);
 
@@ -19,6 +20,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs/`);
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     UsersModule,
     AuthModule,
+    MusicModule,
   ],
   providers: [
     {

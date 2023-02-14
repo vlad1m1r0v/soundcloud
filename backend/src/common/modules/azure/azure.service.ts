@@ -27,7 +27,7 @@ export class AzureBlobService {
     this.azureConnection = this.config.get<string>('AZURE_CONNECTION_STRING');
   }
 
-  getContainerClient(containerName): ContainerClient {
+  getContainerClient(containerName: string): ContainerClient {
     const blobClientService = BlobServiceClient.fromConnectionString(
       this.azureConnection,
     );
@@ -35,9 +35,9 @@ export class AzureBlobService {
     return containerClient;
   }
 
-  getBlobClient(imageName: string, containerName: string): BlockBlobClient {
+  getBlobClient(fileName: string, containerName: string): BlockBlobClient {
     const containerClient = this.getContainerClient(containerName);
-    const blobClient = containerClient.getBlockBlobClient(imageName);
+    const blobClient = containerClient.getBlockBlobClient(fileName);
     return blobClient;
   }
 
@@ -45,6 +45,7 @@ export class AzureBlobService {
     file: Express.Multer.File,
     containerName: string,
   ): Promise<string> {
+    console.log(file);
     const fileName = uuid() + extname(file.originalname);
     const blobClient = this.getBlobClient(fileName, containerName);
     await blobClient.uploadData(file.buffer);

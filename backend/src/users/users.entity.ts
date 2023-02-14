@@ -1,5 +1,6 @@
 import { AbstractEntity } from 'src/data/entities/abstract.entity';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Music } from 'src/music/music.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class Users extends AbstractEntity {
@@ -26,4 +27,9 @@ export class Users extends AbstractEntity {
 
   @Column({ nullable: true })
   hashedRT: string;
+
+  @OneToMany(() => Music, (music) => music.user, {
+    cascade: true,
+  })
+  music: Music[];
 }
