@@ -1,13 +1,14 @@
+import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/data/entities/abstract.entity';
 import { Music } from 'src/music/music.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 
-@Entity()
+@Entity({ name: 'users' })
 export class Users extends AbstractEntity {
-  @Column()
+  @Column({ name: 'first_name' })
   firstName: string;
 
-  @Column()
+  @Column({ name: 'last_name' })
   lastName: string;
 
   @Column({ unique: true })
@@ -16,19 +17,21 @@ export class Users extends AbstractEntity {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ name: 'birth_date', type: 'date', nullable: true })
   birthDate: string;
 
   @Column({ nullable: true })
   description: string;
 
   @Column()
+  @Exclude({ toPlainOnly: true })
   password: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'hashed_rt', nullable: true })
+  @Exclude({ toPlainOnly: true })
   hashedRT: string;
 
-  @OneToMany(() => Music, (music) => music.user, {
+  @OneToMany(() => Music, (music) => music.userId, {
     cascade: true,
   })
   music: Music[];

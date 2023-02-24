@@ -4,6 +4,7 @@ import { Request } from 'express';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, JwtPayloadWithRt } from '../types';
+import { ErrorMessage } from 'src/common/enums';
 
 @Injectable()
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
@@ -21,7 +22,8 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
       ?.replace('Bearer', '')
       .trim();
 
-    if (!refreshToken) throw new ForbiddenException('Refresh token malformed');
+    if (!refreshToken)
+      throw new ForbiddenException(ErrorMessage.REFRESH_TOKEN_MALFORMED);
 
     return {
       ...payload,

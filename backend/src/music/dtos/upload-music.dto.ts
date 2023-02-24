@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsUrl } from 'class-validator';
 
 export class UploadMusicDto {
   @IsNotEmpty()
@@ -8,4 +8,8 @@ export class UploadMusicDto {
   @IsNotEmpty()
   @IsString()
   artist: string;
+
+  @IsNotEmpty()
+  @IsUrl()
+  url: string;
 }

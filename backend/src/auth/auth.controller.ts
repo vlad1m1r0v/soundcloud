@@ -1,10 +1,12 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   HttpCode,
   HttpStatus,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   GetCurrentUser,
@@ -14,9 +16,9 @@ import {
 import { RtGuard } from 'src/common/guards';
 import { CreateUserDto } from 'src/users/dtos';
 import { AuthService } from './auth.service';
-import { SignInDto } from './dtos/signin.dto';
-import { Tokens } from './types';
+import { SignInDto } from './dtos';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

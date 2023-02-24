@@ -11,7 +11,8 @@ import { Repository, Not, IsNull } from 'typeorm';
 import { JwtPayload, Tokens } from './types';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { SignInDto } from './dtos/signin.dto';
+import { SignInDto } from './dtos';
+import { ErrorMessage } from 'src/common/enums';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,9 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (candidate) {
-      throw new BadRequestException('User with such email already exists');
+      throw new BadRequestException(
+        ErrorMessage.USER_WITH_SUCH_EMAIL_ALREADY_EXISTS,
+      );
     }
     try {
       const hash = await argon.hash(dto.password);
@@ -35,10 +38,9 @@ export class AuthService {
       const user = await this.usersRepository.save(entity);
       const tokens = await this.getTokens(user.id, user.email);
       await this.updateRtHash(user.id, tokens.refresh_token);
-      const { password, hashedRT, ...rest } = user;
-      return { ...tokens, user: rest };
+      return { ...tokens, user };
     } catch (error) {
-      throw new ForbiddenException('Credentials incorrect');
+      throw new ForbiddenException(ErrorMessage.INVALID_CREDETIALS);
     }
   }
 
@@ -48,17 +50,13 @@ export class AuthService {
         email: dto.email,
       },
     });
-
-    if (!user) throw new ForbiddenException('Access Denied');
-
+    if (!user) throw new ForbiddenException(ErrorMessage.ACCESS_DENIED);
     const passwordMatches = await argon.verify(user.password, dto.password);
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
-
+    if (!passwordMatches)
+      throw new ForbiddenException(ErrorMessage.ACCESS_DENIED);
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
-
-    const { password, hashedRT, ...rest } = user;
-    return { ...tokens, user: rest };
+    return { ...tokens, user };
   }
 
   async logout(userId: string) {
@@ -75,18 +73,20 @@ export class AuthService {
 
   async refreshTokens(userId: string, rt: string): Promise<Tokens> {
     const user = await this.usersRepository.findOne({
+      select: {
+        id: true,
+        hashedRT: true,
+      },
       where: {
         id: userId,
       },
     });
-    if (!user || !user.hashedRT) throw new ForbiddenException('Access Denied');
-
+    if (!user || !user.hashedRT)
+      throw new ForbiddenException(ErrorMessage.ACCESS_DENIED);
     const rtMatches = await argon.verify(user.hashedRT, rt);
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
-
+    if (!rtMatches) throw new ForbiddenException(ErrorMessage.ACCESS_DENIED);
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
-
     return tokens;
   }
 

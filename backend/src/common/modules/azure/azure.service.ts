@@ -8,6 +8,7 @@ import {
 } from '@azure/storage-blob';
 import { ConfigService } from '@nestjs/config';
 import { Readable } from 'stream';
+import { ErrorMessage } from 'src/common/enums';
 
 const HALF_MEGABYTE = 512 * 1024;
 const uploadOptions = { bufferSize: HALF_MEGABYTE, maxBuffers: 20 };
@@ -45,10 +46,16 @@ export class AzureBlobService {
     file: Express.Multer.File,
     containerName: string,
   ): Promise<string> {
-    const fileName = uuid() + extname(file.originalname);
-    const blobClient = this.getBlobClient(fileName, containerName);
-    await blobClient.uploadData(file.buffer);
-    return blobClient.url;
+    try {
+      const fileName = uuid() + extname(file.originalname);
+      const blobClient = this.getBlobClient(fileName, containerName);
+      await blobClient.uploadData(file.buffer);
+      return blobClient.url;
+    } catch {
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR_OCCURED,
+      );
+    }
   }
 
   async uploadStream({
@@ -70,13 +77,21 @@ export class AzureBlobService {
       );
       return blobClient.url;
     } catch {
-      throw new InternalServerErrorException('Internal server error occured');
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR_OCCURED,
+      );
     }
   }
 
   async delete(url: string, containerName: string) {
-    const blobName = url.substring(url.lastIndexOf('/') + 1, url.length);
-    const blobClient = this.getBlobClient(blobName, containerName);
-    await blobClient.deleteIfExists();
+    try {
+      const blobName = url.substring(url.lastIndexOf('/') + 1, url.length);
+      const blobClient = this.getBlobClient(blobName, containerName);
+      await blobClient.deleteIfExists();
+    } catch {
+      throw new InternalServerErrorException(
+        ErrorMessage.INTERNAL_SERVER_ERROR_OCCURED,
+      );
+    }
   }
 }
