@@ -15,5 +15,5 @@ export class Music extends AbstractEntity {
 
   @ManyToOne(() => Users, (users) => users.id)
   @JoinColumn({ name: 'user_id' })
-  readonly userId: string;
+  readonly user: Users;
 }

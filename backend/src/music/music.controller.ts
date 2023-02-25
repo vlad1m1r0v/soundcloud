@@ -1,13 +1,17 @@
 import {
   Body,
   Controller,
+  Param,
   Post,
+  Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetCurrentUserId } from 'src/common/decorators';
-import { UploadMusicDto } from './dtos';
+import { EditMusicDto, UploadMusicDto } from './dtos';
+import { MusicCreatorGuard } from './music.guard';
 import { MusicService } from './music.service';
 
 @Controller('music')
@@ -26,5 +30,11 @@ export class MusicController {
     @Body() dto: UploadMusicDto,
   ) {
     return this.musicService.uploadMusic(userId, dto);
+  }
+
+  @Put('/:id')
+  @UseGuards(MusicCreatorGuard)
+  async editMusic(@Param('id') id: string, @Body() dto: EditMusicDto) {
+    return this.musicService.editMusic(id, dto);
   }
 }

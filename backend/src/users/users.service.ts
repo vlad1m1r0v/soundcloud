@@ -25,7 +25,7 @@ export class UsersService {
         where: { id: userId },
       });
       return user;
-    } catch (error) {
+    } catch {
       throw new BadRequestException(ErrorMessage.INVALID_CREDETIALS);
     }
   }

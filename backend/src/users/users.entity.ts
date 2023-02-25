@@ -31,7 +31,7 @@ export class Users extends AbstractEntity {
   @Exclude({ toPlainOnly: true })
   hashedRT: string;
 
-  @OneToMany(() => Music, (music) => music.userId, {
+  @OneToMany(() => Music, (music) => music.user, {
     cascade: true,
   })
   music: Music[];
