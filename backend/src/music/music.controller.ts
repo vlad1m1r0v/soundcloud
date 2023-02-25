@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Post,
   Put,
@@ -36,5 +37,11 @@ export class MusicController {
   @UseGuards(MusicCreatorGuard)
   async editMusic(@Param('id') id: string, @Body() dto: EditMusicDto) {
     return this.musicService.editMusic(id, dto);
+  }
+
+  @Delete('/:id')
+  @UseGuards(MusicCreatorGuard)
+  async deleteMusic(@Param('id') id: string) {
+    return this.musicService.deleteMusic(id);
   }
 }

@@ -42,4 +42,16 @@ export class MusicService {
       throw new BadRequestException(ErrorMessage.INVALID_CREDETIALS);
     }
   }
+
+  async deleteMusic(musicId: string) {
+    try {
+      const music = await this.musicRepository.findOneOrFail({
+        where: { id: musicId },
+      });
+      await this.azureBlobService.delete(music.url, this.containerName);
+      await this.musicRepository.delete({ id: musicId });
+    } catch {
+      throw new BadRequestException(ErrorMessage.INVALID_CREDETIALS);
+    }
+  }
 }
