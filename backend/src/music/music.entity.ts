@@ -1,6 +1,14 @@
 import { AbstractEntity } from 'src/data/entities/abstract.entity';
+import { Genre } from 'src/genre/genre.entity';
 import { Users } from 'src/users/users.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 
 @Entity()
 export class Music extends AbstractEntity {
@@ -15,5 +23,19 @@ export class Music extends AbstractEntity {
 
   @ManyToOne(() => Users, (users) => users.id)
   @JoinColumn({ name: 'user_id' })
-  readonly user: Users;
+  user: Users;
+
+  @ManyToMany(() => Genre)
+  @JoinTable({
+    name: 'music_genre',
+    joinColumn: {
+      name: 'music_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'genre_id',
+      referencedColumnName: 'id',
+    },
+  })
+  genres: Genre[];
 }
