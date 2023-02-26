@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  IsUUID,
+} from 'class-validator';
 
 export class UploadMusicDto {
   @IsNotEmpty()
@@ -12,4 +18,8 @@ export class UploadMusicDto {
   @IsNotEmpty()
   @IsUrl()
   url: string;
+
+  @IsOptional()
+  @IsUUID(undefined, { each: true })
+  genres?: string[];
 }

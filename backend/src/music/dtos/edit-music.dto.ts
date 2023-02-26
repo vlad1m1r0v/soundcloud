@@ -1,11 +1,17 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class EditMusicDto {
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
-  name: string;
+  name?: string;
 
+  @IsOptional()
   @IsNotEmpty()
   @IsString()
-  artist: string;
+  artist?: string;
+
+  @IsOptional()
+  @IsUUID(undefined, { each: true })
+  genres?: string[];
 }

@@ -23,20 +23,38 @@ export class MusicService {
   }
 
   async uploadMusic(userId: string, dto: UploadMusicDto) {
+    const { genres = [], ...rest } = dto;
     const entity = this.musicRepository.create({
       user: { id: userId },
-      ...dto,
+      ...rest,
     });
+    await this.musicRepository
+      .createQueryBuilder()
+      .relation('genres')
+      .of(entity)
+      .addAndRemove(genres, []);
     const uploadedMusic = this.musicRepository.save(entity);
     return uploadedMusic;
   }
 
   async editMusic(musicId: string, dto: EditMusicDto) {
     try {
-      await this.musicRepository.update({ id: musicId }, { ...dto });
-      const music = await this.musicRepository.findOne({
-        where: { id: musicId },
-      });
+      const { genres = [], ...rest } = dto;
+      const previousGenres = await this.musicRepository
+        .createQueryBuilder()
+        .relation('genres')
+        .of({ id: musicId })
+        .loadMany();
+      await this.musicRepository
+        .createQueryBuilder()
+        .relation('genres')
+        .of({ id: musicId })
+        .addAndRemove(genres, previousGenres);
+      await this.musicRepository.update({ id: musicId }, { ...rest });
+      const music = await this.musicRepository
+        .createQueryBuilder('music')
+        .leftJoinAndSelect('music.genres', 'genre')
+        .getMany();
       return music;
     } catch {
       throw new BadRequestException(ErrorMessage.INVALID_CREDETIALS);
