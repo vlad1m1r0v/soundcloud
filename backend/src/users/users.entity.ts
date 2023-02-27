@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { AbstractEntity } from 'src/data/entities/abstract.entity';
 import { Music } from 'src/music/music.entity';
+import { Playlist } from 'src/playlist/playlist.entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 
 @Entity({ name: 'users' })
@@ -35,4 +36,9 @@ export class Users extends AbstractEntity {
     cascade: true,
   })
   music: Music[];
+
+  @OneToMany(() => Music, (music) => music.user, {
+    cascade: true,
+  })
+  playlists: Playlist[];
 }

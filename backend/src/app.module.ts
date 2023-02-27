@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
 import { MusicModule } from './music/music.module';
 import { GenreModule } from './genre/genre.module';
+import { PlaylistModule } from './playlist/playlist.module';
 
 const envFilePath: string = getEnvPath(`${__dirname}/common/envs/`);
 
@@ -23,6 +24,7 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs/`);
     AuthModule,
     MusicModule,
     GenreModule,
+    PlaylistModule,
   ],
   providers: [
     {

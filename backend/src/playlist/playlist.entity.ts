@@ -1,47 +1,38 @@
 import { AbstractEntity } from 'src/data/entities/abstract.entity';
-import { Genre } from 'src/genre/genre.entity';
-import { Playlist } from 'src/playlist/playlist.entity';
+import { Music } from 'src/music/music.entity';
 import { Users } from 'src/users/users.entity';
 import {
   Entity,
   Column,
-  ManyToOne,
-  JoinColumn,
   ManyToMany,
   JoinTable,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
-export class Music extends AbstractEntity {
+export class Playlist extends AbstractEntity {
   @Column()
   name: string;
 
-  @Column()
-  artist: string;
-
-  @Column()
-  url: string;
+  @Column({ nullable: true })
+  cover: string;
 
   @ManyToOne(() => Users, (users) => users.id)
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @ManyToMany(() => Genre)
+  @ManyToMany(() => Music)
   @JoinTable({
-    name: 'music_genre',
+    name: 'playlist_music',
     joinColumn: {
-      name: 'music_id',
+      name: 'playlist_id',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'genre_id',
+      name: 'music_id',
       referencedColumnName: 'id',
     },
   })
-  genres: Genre[];
-
-  @ManyToMany(() => Playlist, (playlist) => playlist.music, {
-    onDelete: 'CASCADE',
-  })
-  playlists: Playlist[];
+  music: Music[];
 }
